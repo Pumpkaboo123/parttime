@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="FlexiGig — A modern part-time job platform for seekers and posters with a stunning bento box layout.">
+  <title>FlexiGig — Part-Time Jobs Reimagined</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="seeker-mode">
+
+  <!-- ===== APP SHELL ===== -->
+  <div id="app">
+
+    <!-- Top Bar -->
+    <header id="topbar">
+      <div class="logo" id="main-logo" style="cursor: pointer;">
+        <div class="logo-icon">F</div>
+        <span>FlexiGig</span>
+      </div>
+      <div class="topbar-right">
+        <nav class="main-nav">
+          <a href="#" class="active" id="nav-home">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            Home
+          </a>
+        </nav>
+        <div style="position: relative;">
+          <button id="notif-btn" class="icon-btn" aria-label="Notifications">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span class="notif-dot" id="notif-dot-indicator"></span>
+          </button>
+
+          <div id="notif-dropdown" class="bento-card"
+            style="display: none; position: absolute; top: 50px; right: 0; width: 300px; padding: 1rem; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom: 10px; font-size: 1rem;">Notifications</h3>
+            <div id="notif-list" style="max-height: 300px; overflow-y: auto;">
+              <p class="empty-msg" style="text-align: center; font-size: 0.9rem;">No new notifications</p>
+            </div>
+          </div>
+        </div>
+        <div style="position: relative; display: flex; gap: 12px; align-items: center;">
+          <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme">
+            <svg id="theme-icon-sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg id="theme-icon-moon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+          <div class="avatar" id="avatar-btn">A</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== SEEKER VIEW ===== -->
+    <main id="seeker-view" class="view active">
+
+      <!-- Welcome Bento -->
+      <section class="bento-grid seeker-grid">
+
+        <!-- Welcome Card (span 2 cols) -->
+        <div class="bento-card welcome-card span-2">
+          <div class="welcome-text">
+            <p class="greeting">Good evening, Aslam 👋</p>
+            <h1>Find your perfect <span class="highlight-mint">part-time gig</span></h1>
+          </div>
+          <div class="search-bar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input type="text" placeholder="Search jobs, cafes, freelance..." id="search-input">
+          </div>
+        </div>
+
+        <!-- Stats Mini -->
+        <div class="bento-card stats-mini">
+          <span class="stat-number">2,340</span>
+          <span class="stat-label">Jobs near you</span>
+        </div>
+
+        <!-- Category: Cafe -->
+        <div class="bento-card category-card" data-category="cafe">
+          <img src="assets/clay_coffee.png" alt="Cafe Jobs" class="clay-icon">
+          <span class="cat-label">Cafe</span>
+          <span class="cat-count">128 gigs</span>
+        </div>
+
+        <!-- Category: Tech -->
+        <div class="bento-card category-card" data-category="tech">
+          <img src="assets/clay_laptop.png" alt="Tech Jobs" class="clay-icon">
+          <span class="cat-label">Tech</span>
+          <span class="cat-count">95 gigs</span>
+        </div>
+
+        <!-- Category: Retail -->
+        <div class="bento-card category-card" data-category="retail">
+          <img src="assets/clay_shopping.png" alt="Retail Jobs" class="clay-icon">
+          <span class="cat-label">Retail</span>
+          <span class="cat-count">210 gigs</span>
+        </div>
+
+        <!-- Category: Delivery -->
+        <div class="bento-card category-card" data-category="delivery">
+          <div class="clay-icon emoji-icon">📦</div>
+          <span class="cat-label">Delivery</span>
+          <span class="cat-count">176 gigs</span>
+        </div>
+
+        <!-- Category: Creative -->
+        <div class="bento-card category-card" data-category="creative">
+          <div class="clay-icon emoji-icon">🎨</div>
+          <span class="cat-label">Creative</span>
+          <span class="cat-count">64 gigs</span>
+        </div>
+
+        <!-- Category: Events -->
+        <div class="bento-card category-card" data-category="events">
+          <div class="clay-icon emoji-icon">📸</div>
+          <span class="cat-label">Events</span>
+          <span class="cat-count">89 gigs</span>
+        </div>
+
+        <!-- Featured Jobs Section (span full) -->
+        <div class="bento-card featured-section span-full">
+          <div class="section-header">
+            <h2 id="featured-heading">🔥 Featured Gigs</h2>
+            <div class="header-actions">
+              <a href="#" class="see-all" id="back-to-featured" style="display:none">← Back to Dashboard</a>
+              <a href="#" class="see-all" id="see-all-featured">See all →</a>
+            </div>
+          </div>
+          <div id="job-list-container" class="job-grid">
+            <!-- Jobs injected here -->
+          </div>
+        </div>
+
+        <!-- Recent Applications (span 2) -->
+        <div class="bento-card applications-card span-2">
+          <h2>📋 Your Applications</h2>
+          <div class="app-list">
+            <div class="app-item">
+              <div class="app-icon" style="background: #a8e6cf;">☕</div>
+              <div class="app-info">
+                <strong>Barista — Morning Shift</strong>
+                <span>Brew & Co. • Applied 2 days ago</span>
+              </div>
+              <span class="app-status status-review">In Review</span>
+            </div>
+            <div class="app-item">
+              <div class="app-icon" style="background: #c3b1e1;">📦</div>
+              <div class="app-info">
+                <strong>Delivery Partner</strong>
+                <span>QuickDrop • Applied 5 days ago</span>
+              </div>
+              <span class="app-status status-interview">Interview</span>
+            </div>
+            <div class="app-item">
+              <div class="app-icon" style="background: #fde68a;">🎨</div>
+              <div class="app-info">
+                <strong>Freelance Designer</strong>
+                <span>PixelPop Agency • Applied 1 week ago</span>
+              </div>
+              <span class="app-status status-accepted">Accepted!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tip Card -->
+        <div class="bento-card tip-card">
+          <span class="tip-emoji">💡</span>
+          <p class="tip-text">Profiles with photos get <strong>3× more</strong> responses!</p>
+          <button class="tip-btn">Add Photo</button>
+        </div>
+      </section>
+    </main>
+
+  <!-- ===== POSTER VIEW ===== -->
+  <main id="poster-view" class="view">
+    <section class="bento-grid poster-grid">
+
+      <!-- Header Card -->
+      <div class="bento-card poster-welcome span-full">
+        <div class="poster-welcome-text">
+          <p class="poster-greeting">COMMAND CENTER <span class="blink">_</span></p>
+          <h1>Hire <span class="highlight-indigo">smarter</span>, faster.</h1>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="bento-card poster-stat-card">
+        <span class="poster-stat-label">Active Listings</span>
+        <span class="poster-stat-number glow" id="active-listings-count">12</span>
+      </div>
+      <div class="bento-card poster-stat-card">
+        <span class="poster-stat-label">Applicants Today</span>
+        <span class="poster-stat-number glow">247</span>
+      </div>
+      <div class="bento-card poster-stat-card">
+        <span class="poster-stat-label">Interviews Set</span>
+        <span class="poster-stat-number glow">38</span>
+      </div>
+      <div class="bento-card poster-stat-card">
+        <span class="poster-stat-label">Hire Rate</span>
+        <span class="poster-stat-number glow">76%</span>
+      </div>
+
+      <!-- Create Job CTA (span 2) -->
+      <div class="bento-card poster-cta span-2">
+        <div class="cta-left">
+          <h2>⚡ Post a New Gig</h2>
+          <p>Drag-and-drop your job details. It takes under 2 minutes.</p>
+        </div>
+        <button class="poster-create-btn" id="create-job-btn">+ Create Listing</button>
+      </div>
+
+      <!-- Recent Listings (span 2) -->
+      <div class="bento-card poster-listings span-2">
+        <h2>📊 Active Listings</h2>
+        <div class="listing-table" id="active-listings-table">
+          <div class="listing-row listing-header">
+            <span>Role</span>
+            <span>Applicants</span>
+            <span>Status</span>
+            <span>Actions</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Applicant Pipeline -->
+      <div class="bento-card poster-pipeline span-full">
+        <h2>🔮 Applicant Pipeline</h2>
+        <div class="pipeline-stages">
+          <div class="pipeline-stage">
+            <div class="pipe-header">New</div>
+            <div class="pipe-count glow">134</div>
+            <div class="pipe-bar">
+              <div class="pipe-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipe-header">Screening</div>
+            <div class="pipe-count glow">67</div>
+            <div class="pipe-bar">
+              <div class="pipe-fill" style="width: 50%;"></div>
+            </div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipe-header">Interview</div>
+            <div class="pipe-count glow">38</div>
+            <div class="pipe-bar">
+              <div class="pipe-fill" style="width: 28%;"></div>
+            </div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipe-header">Offer</div>
+            <div class="pipe-count glow">12</div>
+            <div class="pipe-bar">
+              <div class="pipe-fill" style="width: 9%;"></div>
+            </div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipe-header">Hired</div>
+            <div class="pipe-count glow">8</div>
+            <div class="pipe-bar">
+              <div class="pipe-fill" style="width: 6%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Insights -->
+      <div class="bento-card poster-insight">
+        <span class="insight-icon">📈</span>
+        <span class="insight-text">Applications are <strong>+32%</strong> vs last week</span>
+      </div>
+      <div class="bento-card poster-insight">
+        <span class="insight-icon">⏱️</span>
+        <span class="insight-text">Avg. time to hire: <strong>4.2 days</strong></span>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ===== LIQUID TOGGLE ===== -->
+  <nav id="bottom-toggle">
+    <div class="toggle-container" id="liquid-toggle">
+      <div class="toggle-blob" id="toggle-blob"></div>
+      <button class="toggle-option active" id="toggle-seeker" data-mode="seeker">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <span>Find Jobs</span>
+      </button>
+      <button class="toggle-option" id="toggle-poster" data-mode="poster">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M2 12h20" />
+        </svg>
+        <span>Post Jobs</span>
+      </button>
+    </div>
+  </nav>
+
+  </div>
+
+  <!-- ===== MODALS ===== -->
+  <div id="job-modal" class="modal-overlay">
+    <div class="modal-content bento-card">
+      <div class="modal-header">
+        <h2>🚀 Post a New Gig</h2>
+        <button id="close-modal" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="create-job-form">
+        <div class="form-group">
+          <label for="job-title-input">Job Title</label>
+          <input type="text" id="job-title-input" placeholder="e.g. Senior Barista" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="job-pay-input">Pay ($/hr)</label>
+            <input type="text" id="job-pay-input" placeholder="e.g. $25" required>
+          </div>
+          <div class="form-group">
+            <label for="job-status-input">Initial Status</label>
+            <select id="job-status-input">
+              <option value="Live">● Live</option>
+              <option value="Paused">◼ Paused</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="job-category-input">Category</label>
+          <select id="job-category-input" required>
+            <option value="cafe">Cafe</option>
+            <option value="tech">Tech</option>
+            <option value="retail">Retail</option>
+            <option value="delivery">Delivery</option>
+            <option value="creative">Creative</option>
+            <option value="events">Events</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" id="cancel-job-btn">Cancel</button>
+          <button type="submit" class="primary-btn">Launch Listing</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Applicants Modal -->
+  <div id="applicants-modal" class="modal-overlay">
+    <div class="modal-content bento-card">
+      <div class="modal-header">
+        <h2>👥 Applicants</h2>
+        <button id="close-applicants-modal" class="modal-close-btn">&times;</button>
+      </div>
+      <div id="applicants-list" style="margin-top: 1rem; max-height: 400px; overflow-y: auto;">
+        <!-- Applicants injected here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
