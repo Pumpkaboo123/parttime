@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlexiGig — Project Presentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0d0d12 0%, #1a1a2e 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-mint: #4ade80;
+            --accent-lavender: #a78bfa;
+            --accent-indigo: #6366f1;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 4rem;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 1000px;
+            width: 100%;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--accent-mint), var(--accent-lavender));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--accent-mint);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent-mint);
+        }
+
+        p {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .bento-tile {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .bento-tile:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .bento-tile h3 {
+            color: var(--accent-lavender);
+            margin-bottom: 0.75rem;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        button {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-mint);
+        }
+
+        .slide-number {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            color: var(--text-secondary);
+            font-weight: bold;
+        }
+
+        .title-slide {
+            text-align: center;
+        }
+
+        .mockup-img {
+            max-width: 100%;
+            border-radius: 16px;
+            margin-top: 2rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--accent-indigo) 0%, transparent 70%);
+            filter: blur(80px);
+            opacity: 0.3;
+            z-index: -1;
+            animation: move 20s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(20%, 20%); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="blob" style="top: 10%; left: 10%; background: var(--accent-mint);"></div>
+    <div class="blob" style="bottom: 10%; right: 10%; background: var(--accent-lavender);"></div>
+
+    <div class="presentation-container">
+        <!-- Slide 1 -->
+        <div class="slide active title-slide" id="slide-1">
+            <div class="glass-card">
+                <h1>FlexiGig</h1>
+                <p>Part-Time Jobs Reimagined — A Premium Glassmorphism Bento Grid Portal</p>
+                <div style="margin-top: 2rem; color: var(--text-secondary)">
+                    March 25, 2026<br>
+                    Project Presentation
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide" id="slide-2">
+            <div class="glass-card">
+                <h2>Executive Summary</h2>
+                <div class="bento-grid">
+                    <div class="bento-tile">
+                        <h3>Vision</h3>
+                        <p>A next-gen platform connecting local seekers and employers with modern UX.</p>
+                    </div>
+                    <div class="bento-tile">
+                        <h3>Strategy</h3>
+                        <p>Simplified hiring via role-specific dashboards and real-time feedback.</p>
+                    </div>
+                    <div class="bento-tile" style="grid-column: span 2;">
+                        <h3>Innovation</h3>
+                        <p>First job portal to implement a comprehensive "Glassy Bento" system, blending utility with high-end aesthetics.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide" id="slide-3">
+            <div class="glass-card">
+                <h2>The Problem Statement</h2>
+                <div class="bento-grid">
+                    <div class="bento-tile">
+                        <h3>Dated Interfaces</h3>
+                        <p>Most gig platforms feel like legacy software from the early 2010s, with cluttered layouts.</p>
+                    </div>
+                    <div class="bento-tile">
+                        <h3>Friction in Hiring</h3>
+                        <p>Complex forms and slow feedback loops discourage quick part-time matching for local businesses.</p>
+                    </div>
+                    <div class="bento-tile" style="grid-column: span 2;">
+                        <h3>Information Overload</h3>
+                        <p>Job seekers are overwhelmed by walls of text. FlexiGig uses Bento Tiles to make data digestible and interactive.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide" id="slide-4">
+            <div class="glass-card">
+                <h2>Core Objectives</h2>
+                <ul>
+                    <li><strong>Aesthetic Excellence:</strong> Pixel-perfect UI with cutting-edge CSS glassmorphism effects.</li>
+                    <li><strong>Dual-Mode Functionality:</strong> Distinct, optimized Seeker vs. Employer experiences.</li>
+                    <li><strong>Real-Time Efficiency:</strong> Optimized "Quick Apply" and "Hiring Funnels" with instant feedback.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide" id="slide-5">
+            <div class="glass-card">
+                <h2>High-Efficiency Discoveries</h2>
+                <p>Advanced filtering and instant application tracking for the Seeker experience.</p>
+                <img src="/home/aslam/.gemini/antigravity/brain/89e8ab10-5da9-41a4-aa66-6a218b978bed/flexigig_bento_dashboard_1774424209619.png" class="mockup-img" alt="Seeker Dashboard">
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide" id="slide-6">
+            <div class="glass-card">
+                <h2>Seeker Journey</h2>
+                <div class="bento-grid">
+                    <div class="bento-tile">
+                        <h3>1. Discover</h3>
+                        <p>Browse categorized gigs (Cafe, Tech, Retail) with real-time availability counters.</p>
+                    </div>
+                    <div class="bento-tile">
+                        <h3>2. Quick Apply</h3>
+                        <p>Apply with a single click — no redundant form-filling for every individual job.</p>
+                    </div>
+                    <div class="bento-tile">
+                        <h3>3. Track</h3>
+                        <p>Real-time status updates in a visual pipeline: 'Applied' → 'Interview' → 'Hired'.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide" id="slide-7">
+            <div class="glass-card">
+                <h2>Employer Command Center</h2>
+                <p>Full applicant lifecycle management from a single glassmorphism tile.</p>
+                <img src="/home/aslam/.gemini/antigravity/brain/89e8ab10-5da9-41a4-aa66-6a218b978bed/flexigig_bento_dashboard_1774424209619.png" class="mockup-img" alt="Employer Dashboard" style="filter: hue-rotate(45deg);">
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide" id="slide-8">
+            <div class="glass-card">
+                 <h2>Employer Workflow</h2>
+                 <div class="bento-grid">
+                    <div class="bento-tile" style="grid-row: span 2;">
+                        <h3>Applicant Management</h3>
+                        <p>Integrated modal to manage candidate lifecycles (Reject, Waitlist, Interview, Selected).</p>
+                    </div>
+                    <div class="bento-tile">
+                        <h3>Instant Feedback</h3>
+                        <p>Real-time toast notifications for new applications as they arrive.</p>
+                    </div>
+                    <div class="bento-tile">
+                        <h3>Analytics Tile</h3>
+                        <p>Track active listings and total applicant counts at a glance with live updates.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide" id="slide-9">
+            <div class="glass-card">
+                <h2>Technology Stack</h2>
+                <div class="bento-grid">
+                    <div class="bento-tile">
+                        <h3>Frontend</h3>
+                        <p>Vanilla JS/HTML5, CSS Grid Lab, Backdrop Filters</p>
+                    </div>
+                    <div class="bento-tile">
+                        <h3>Backend</h3>
+                        <p>Node.js, Express, JWT Auth, bcrypt Security</p>
+                    </div>
+                    <div class="bento-tile">
+                        <h3>Database</h3>
+                        <p>High-Performance SQLite (Better-SQLite3)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide" id="slide-10">
+            <div class="glass-card">
+                <h2>Relational Core Architecture</h2>
+                <div class="bento-grid">
+                    <div class="bento-tile">
+                        <h3>Users & Roles</h3>
+                        <p>Secure JWT-based auth with distinct permissions for Seekers and Employers.</p>
+                    </div>
+                    <div class="bento-tile">
+                        <h3>Job Ledger</h3>
+                        <p>Dynamic listing table with real-time relationship to posters and status tracking.</p>
+                    </div>
+                    <div class="bento-tile" style="grid-column: span 2;">
+                        <h3>Application Junction</h3>
+                        <p>Synchronized junction table preventing duplicate entries and managing granular funnel states.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide" id="slide-11">
+            <div class="glass-card">
+                <h2>Design System Identity</h2>
+                <div class="bento-grid">
+                    <div class="bento-tile"><h3>Glassmorphism</h3><p>Crystalline blurred backgrounds.</p></div>
+                    <div class="bento-tile"><h3>Bento Grid</h3><p>Apple-inspired modular scaling.</p></div>
+                    <div class="bento-tile"><h3>Mesh Gradients</h3><p>Fluid, animated color blobs.</p></div>
+                    <div class="bento-tile"><h3>Typography</h3><p>Inter & Space Grotesk pairing.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide" id="slide-12">
+            <div class="glass-card" style="max-height: 90vh; overflow: hidden; padding: 1rem;">
+                <img src="/home/aslam/.gemini/antigravity/brain/89e8ab10-5da9-41a4-aa66-6a218b978bed/flexigig_slide_8_challenges_1774424242700.png" class="mockup-img" style="width: 100%; border-radius: 12px; margin-top: 0;" alt="Challenges & Solutions">
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide" id="slide-13">
+            <div class="glass-card">
+                <h2>The Road Ahead</h2>
+                <ul>
+                    <li><strong>AI Matching:</strong> Intelligent gig recommendations based on user skills and history.</li>
+                    <li><strong>In-App Chat:</strong> Real-time crystalline chat interface for seamless interviews.</li>
+                    <li><strong>Mobile App:</strong> Native iOS/Android apps following the Bento Design Language.</li>
+                    <li><strong>Gamification:</strong> Reward points for reliable seekers and top-rated employers.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide" id="slide-14">
+            <div class="glass-card title-slide">
+                <h1>Conclusion</h1>
+                <p>FlexiGig proves that utility and aesthetics can coexist beautifully in HR technology.</p>
+                <h2 style="margin-top: 3rem;">Thank You!</h2>
+                <p style="color: var(--accent-mint); font-size: 1.5rem;">Questions? Feedback? Let's discuss.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-number">Slide <span id="current-slide">1</span> of 14</div>
+
+    <div class="controls">
+        <button onclick="prevSlide()">← Previous</button>
+        <button onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 1;
+        const totalSlides = 14;
+
+        function showSlide(index) {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            const targetSlide = document.getElementById(`slide-${index}`);
+            if (targetSlide) {
+                targetSlide.classList.add('active');
+                document.getElementById('current-slide').innerText = index;
+                currentSlideIndex = index;
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides) showSlide(currentSlideIndex + 1);
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 1) showSlide(currentSlideIndex - 1);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+    </script>
+</body>
+</html>
