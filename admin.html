@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FlexiGig Admin — Manage all jobs, users, and applications.">
+  <title>FlexiGig — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ====== ADMIN-SPECIFIC OVERRIDES ====== */
+    :root {
+      --admin-accent: #f43f5e;
+      --admin-purple: #a855f7;
+      --admin-blue: #3b82f6;
+      --admin-green: #22c55e;
+      --admin-yellow: #f59e0b;
+    }
+
+    body { background: var(--bg); font-family: 'Inter', sans-serif; }
+
+    #admin-app {
+      display: grid;
+      grid-template-rows: 64px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ---- TOP BAR ---- */
+    #admin-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .admin-badge {
+      background: var(--admin-accent);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      margin-left: 8px;
+    }
+    .topbar-actions { display: flex; gap: 12px; align-items: center; }
+
+    /* ---- LAYOUT ---- */
+    #admin-body {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: calc(100vh - 64px);
+    }
+
+    /* ---- SIDEBAR ---- */
+    #admin-sidebar {
+      background: rgba(255,255,255,0.04);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sidebar-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      padding: 0.75rem 1.5rem 0.25rem;
+      text-transform: uppercase;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.6rem 1.5rem;
+      margin: 0 0.5rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      transition: all 0.2s ease;
+      border: none; background: transparent; text-align: left; width: calc(100% - 1rem);
+    }
+    .sidebar-link:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+    .sidebar-link.active { background: var(--admin-accent); color: white; font-weight: 600; }
+    .sidebar-link svg { flex-shrink: 0; }
+
+    /* ---- MAIN PANEL ---- */
+    #admin-main {
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    /* ---- STATS GRID ---- */
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .admin-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .admin-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+    .stat-icon { font-size: 1.5rem; }
+    .stat-val  { font-size: 2rem; font-weight: 800; font-family: 'Space Grotesk', sans-serif; }
+    .stat-lbl  { font-size: 0.78rem; color: var(--text-dim); font-weight: 500; }
+
+    /* ---- SECTION HEADER ---- */
+    .section-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .section-header-row h2 { font-size: 1.15rem; font-weight: 700; }
+
+    /* ---- TABLE ---- */
+    .admin-table-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .admin-table thead th {
+      background: rgba(255,255,255,0.05);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .admin-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .admin-table tbody tr:last-child { border-bottom: none; }
+    .admin-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+    .admin-table tbody td { padding: 0.8rem 1rem; color: var(--text); vertical-align: middle; }
+
+    /* ---- ACTION BUTTONS ---- */
+    .tbl-btn {
+      padding: 5px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .tbl-btn:hover { opacity: 0.85; transform: scale(1.04); }
+    .tbl-btn:active { transform: scale(0.97); }
+    .tbl-btn.edit   { background: var(--admin-blue);   color: white; }
+    .tbl-btn.delete { background: var(--admin-accent);  color: white; }
+    .tbl-btn.view   { background: var(--admin-purple);  color: white; }
+    .tbl-def        { color: var(--text-dim); font-style: italic; }
+
+    /* ---- BADGE PILL ---- */
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .pill-employer  { background: rgba(168,85,247,0.15); color: #c084fc; }
+    .pill-candidate { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .pill-admin     { background: rgba(244,63,94,0.15);  color: #fb7185; }
+    .pill-live      { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .pill-applied   { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .pill-selected  { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .pill-rejected  { background: rgba(244,63,94,0.15);  color: #fb7185; }
+    .pill-interview { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .pill-waitlist  { background: rgba(245,158,11,0.15); color: #fbbf24; }
+
+    /* ---- HIRING RATE BAR ---- */
+    .hire-rate-bar-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .hire-rate-bar-wrap .hrate-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .hire-rate-track {
+      flex: 1;
+      min-width: 160px;
+      height: 10px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .hire-rate-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hire-rate-pct {
+      font-size: 1.4rem;
+      font-weight: 800;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #4ade80;
+      min-width: 56px;
+      text-align: right;
+    }
+    .hire-rate-sub {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    /* ---- PER-JOB HIRING RATE CHIP ---- */
+    .hire-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      border: none;
+    }
+    .hire-chip.high { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .hire-chip.mid  { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .hire-chip.low  { background: rgba(148,163,184,0.12); color: #94a3b8; }
+
+    /* ---- SEARCH BAR ---- */
+    .admin-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 12px;
+    }
+    .admin-search input {
+      background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 0.875rem; width: 200px;
+    }
+    .admin-search input::placeholder { color: var(--text-dim); }
+
+    /* ---- MODAL ---- */
+    .admin-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .admin-modal-overlay.active { opacity: 1; pointer-events: all; }
+    .admin-modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      width: min(560px, 92vw);
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px);
+      transition: transform 0.25s;
+    }
+    .admin-modal-overlay.active .admin-modal { transform: translateY(0); }
+    .admin-modal h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.25rem; }
+    .admin-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+    .admin-form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text-dim); }
+    .admin-form-group input,
+    .admin-form-group select,
+    .admin-form-group textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 0.9rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .admin-form-group input:focus,
+    .admin-form-group select:focus,
+    .admin-form-group textarea:focus { border-color: var(--admin-accent); }
+    .admin-form-group textarea { resize: vertical; min-height: 80px; }
+    .admin-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .modal-btns { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
+    .btn-cancel {
+      padding: 0.55rem 1.25rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-cancel:hover { background: rgba(255,255,255,0.08); }
+    .btn-save {
+      padding: 0.55rem 1.5rem;
+      border-radius: 10px;
+      border: none;
+      background: var(--admin-accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-save:hover { opacity: 0.88; }
+
+    /* ---- EMPTY STATE ---- */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-dim);
+    }
+    .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+
+    /* ---- LOADING ---- */
+    .loading-spinner {
+      text-align: center;
+      padding: 2.5rem;
+    }
+    .spin {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--admin-accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---- TOAST (admin) ---- */
+    .admin-toast-wrap {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      display: flex; flex-direction: column; gap: 10px; z-index: 9999;
+    }
+    .admin-toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+      color: var(--text);
+      max-width: 320px;
+    }
+    .admin-toast.show { transform: translateX(0); }
+    .admin-toast.success { border-left: 4px solid var(--admin-green); }
+    .admin-toast.error   { border-left: 4px solid var(--admin-accent); }
+
+    /* ---- CONFIRM DIALOG ---- */
+    .confirm-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9998;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .confirm-overlay.active { opacity: 1; pointer-events: all; }
+    .confirm-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      width: min(380px, 90vw);
+      text-align: center;
+      transform: scale(0.92); transition: transform 0.2s;
+    }
+    .confirm-overlay.active .confirm-box { transform: scale(1); }
+    .confirm-box .confirm-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .confirm-box h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .confirm-box p  { font-size: 0.875rem; color: var(--text-dim); margin-bottom: 1.5rem; }
+    .confirm-btns   { display: flex; gap: 0.75rem; justify-content: center; }
+    .btn-confirm-cancel {
+      padding: 0.5rem 1.25rem; border-radius: 10px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text); font-weight: 600; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-confirm-cancel:hover { background: rgba(255,255,255,0.08); }
+    .btn-confirm-ok {
+      padding: 0.5rem 1.5rem; border-radius: 10px;
+      border: none; background: var(--admin-accent);
+      color: white; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-confirm-ok:hover { opacity: 0.85; }
+
+    /* ---- PANEL VISIBILITY ---- */
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; }
+
+    /* responsive */
+    @media (max-width: 768px) {
+      #admin-body { grid-template-columns: 1fr; }
+      #admin-sidebar { flex-direction: row; overflow-x: auto; padding: 0.5rem; border-right: none; border-bottom: 1px solid var(--border); }
+      .sidebar-label { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="admin-app">
+
+  <!-- ===== TOPBAR ===== -->
+  <header id="admin-topbar">
+    <div class="logo" style="cursor:pointer;" onclick="window.location.href='index.html'">
+      <div class="logo-icon">F</div>
+      <span>FlexiGig</span>
+      <span class="admin-badge">Admin</span>
+    </div>
+    <div class="topbar-actions">
+      <button id="admin-theme-toggle" class="icon-btn" aria-label="Toggle Theme">
+        <svg id="admin-icon-sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg id="admin-icon-moon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <div class="avatar" id="admin-avatar" title="Logout" style="cursor:pointer;">A</div>
+    </div>
+  </header>
+
+  <div id="admin-body">
+
+    <!-- ===== SIDEBAR ===== -->
+    <nav id="admin-sidebar">
+      <div class="sidebar-label">Overview</div>
+      <button class="sidebar-link active" data-panel="panel-overview" id="nav-overview">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Dashboard
+      </button>
+
+      <div class="sidebar-label">Manage</div>
+      <button class="sidebar-link" data-panel="panel-jobs" id="nav-jobs">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+        </svg>
+        Jobs
+      </button>
+      <button class="sidebar-link" data-panel="panel-users" id="nav-users">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Users
+      </button>
+      <button class="sidebar-link" data-panel="panel-apps" id="nav-apps">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        Applications
+      </button>
+
+      <div class="sidebar-label" style="margin-top:auto;"></div>
+      <button class="sidebar-link" id="admin-logout-btn" style="margin-top: auto; color: var(--admin-accent);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Logout
+      </button>
+    </nav>
+
+    <!-- ===== MAIN ===== -->
+    <main id="admin-main">
+
+      <!-- ---- OVERVIEW PANEL ---- -->
+      <div class="admin-panel active" id="panel-overview">
+        <div class="section-header-row">
+          <h2>📊 Dashboard Overview</h2>
+          <button class="tbl-btn view" id="refresh-stats-btn" style="padding: 8px 16px; font-size: 0.82rem;">↻ Refresh</button>
+        </div>
+        <div class="admin-stats-grid" id="stats-grid">
+          <div class="loading-spinner"><div class="spin"></div></div>
+        </div>
+        <div style="margin-top: 2rem;">
+          <div class="section-header-row">
+            <h2>🕓 Recent Jobs</h2>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="recent-jobs-table">
+              <thead>
+                <tr>
+                  <th>Title</th><th>Company</th><th>Posted By</th><th>Category</th><th>Applicants</th>
+                </tr>
+              </thead>
+              <tbody id="recent-jobs-tbody">
+                <tr><td colspan="5"><div class="loading-spinner"><div class="spin"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- JOBS PANEL ---- -->
+      <div class="admin-panel" id="panel-jobs">
+        <div class="section-header-row">
+          <h2>💼 All Job Listings</h2>
+          <div class="admin-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="jobs-search" placeholder="Search jobs...">
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="jobs-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Title</th><th>Company</th><th>Category</th><th>Pay</th>
+                <th>Applicants</th><th>Hiring %</th><th>Posted By</th><th>Date</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="jobs-tbody">
+              <tr><td colspan="10"><div class="loading-spinner"><div class="spin"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ---- USERS PANEL ---- -->
+      <div class="admin-panel" id="panel-users">
+        <div class="section-header-row">
+          <h2>👥 All Users</h2>
+          <div class="admin-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="users-search" placeholder="Search users...">
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="6"><div class="loading-spinner"><div class="spin"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ---- APPLICATIONS PANEL ---- -->
+      <div class="admin-panel" id="panel-apps">
+        <div class="section-header-row">
+          <h2>📋 All Applications</h2>
+          <div class="admin-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="apps-search" placeholder="Search applications...">
+          </div>
+        </div>
+        <!-- Hiring Rate Summary Bar -->
+        <div class="hire-rate-bar-wrap" id="apps-hire-rate-bar">
+          <span class="hrate-label">🎯 Platform Hiring Rate</span>
+          <div class="hire-rate-track">
+            <div class="hire-rate-fill" id="apps-hire-fill"></div>
+          </div>
+          <span class="hire-rate-pct" id="apps-hire-pct">—</span>
+          <span class="hire-rate-sub" id="apps-hire-sub">Loading…</span>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>#</th><th>Candidate</th><th>Job</th><th>Company</th><th>Status</th><th>Applied</th></tr>
+            </thead>
+            <tbody id="apps-tbody">
+              <tr><td colspan="6"><div class="loading-spinner"><div class="spin"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== EDIT JOB MODAL ===== -->
+<div class="admin-modal-overlay" id="edit-job-modal">
+  <div class="admin-modal">
+    <h3>✏️ Edit Job Listing</h3>
+    <input type="hidden" id="edit-job-id">
+    <div class="admin-form-group">
+      <label>Job Title *</label>
+      <input type="text" id="edit-job-title" required>
+    </div>
+    <div class="admin-form-group">
+      <label>Description *</label>
+      <textarea id="edit-job-desc"></textarea>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-group">
+        <label>Company Name *</label>
+        <input type="text" id="edit-job-company">
+      </div>
+      <div class="admin-form-group">
+        <label>Location</label>
+        <input type="text" id="edit-job-location">
+      </div>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-group">
+        <label>Type</label>
+        <select id="edit-job-type">
+          <option value="Full-time">Full-time</option>
+          <option value="Part-time">Part-time</option>
+          <option value="Freelance">Freelance</option>
+          <option value="Contract">Contract</option>
+        </select>
+      </div>
+      <div class="admin-form-group">
+        <label>Category</label>
+        <select id="edit-job-category">
+          <option value="cafe">Cafe</option>
+          <option value="tech">Tech</option>
+          <option value="retail">Retail</option>
+          <option value="delivery">Delivery</option>
+          <option value="creative">Creative</option>
+          <option value="events">Events</option>
+        </select>
+      </div>
+    </div>
+    <div class="admin-form-group">
+      <label>Pay Rate</label>
+      <input type="text" id="edit-job-pay" placeholder="e.g. $25/hr">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="edit-job-cancel">Cancel</button>
+      <button class="btn-save" id="edit-job-save">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIRM DELETE ===== -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <h3 id="confirm-title">Delete this item?</h3>
+    <p id="confirm-msg">This action cannot be undone.</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" id="confirm-cancel-btn">Cancel</button>
+      <button class="btn-confirm-ok" id="confirm-ok-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="admin-toast-wrap" id="admin-toast-wrap"></div>
+
+<script>
+// ============================================================
+//  FlexiGig Admin Dashboard Logic
+// ============================================================
+
+const TOKEN = localStorage.getItem('token');
+const USER_OBJ = JSON.parse(localStorage.getItem('user') || '{}');
+
+// ---- GUARD: Redirect if not admin ----
+(function guard() {
+  const role = localStorage.getItem('flexigig_role');
+  if (!role || role !== 'admin' || !TOKEN) {
+    alert('Admin access only. Redirecting to login.');
+    window.location.href = 'login.html';
+  }
+})();
+
+// ---- THEME ----
+const savedTheme = localStorage.getItem('flexigig_theme');
+if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+
+document.getElementById('admin-theme-toggle').addEventListener('click', () => {
+  const isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('flexigig_theme', isDark ? 'dark' : 'light');
+  document.getElementById('admin-icon-sun').style.display = isDark ? 'block' : 'none';
+  document.getElementById('admin-icon-moon').style.display = isDark ? 'none' : 'block';
+});
+if (savedTheme === 'dark') {
+  document.getElementById('admin-icon-sun').style.display = 'block';
+  document.getElementById('admin-icon-moon').style.display = 'none';
+}
+
+// ---- AVATAR initial ----
+if (USER_OBJ.firstName) document.getElementById('admin-avatar').textContent = USER_OBJ.firstName[0].toUpperCase();
+
+// ---- LOGOUT ----
+function logout() {
+  if (confirm('Are you sure you want to log out?')) {
+    ['flexigig_role','token','user'].forEach(k => localStorage.removeItem(k));
+    window.location.href = 'login.html';
+  }
+}
+document.getElementById('admin-avatar').addEventListener('click', logout);
+document.getElementById('admin-logout-btn').addEventListener('click', logout);
+
+// ---- TOAST ----
+function toast(msg, type = 'success') {
+  const wrap = document.getElementById('admin-toast-wrap');
+  const el = document.createElement('div');
+  el.className = `admin-toast ${type}`;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.classList.add('show'), 50);
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 400);
+  }, 3500);
+}
+
+// ---- API HELPER ----
+async function api(method, endpoint, body) {
+  const opts = {
+    method,
+    headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch('/api/admin' + endpoint, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Request failed' }));
+    throw new Error(err.error || 'Request failed');
+  }
+  return res.json();
+}
+
+// ---- SIDEBAR NAVIGATION ----
+const panels = document.querySelectorAll('.admin-panel');
+const navLinks = document.querySelectorAll('.sidebar-link[data-panel]');
+
+navLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    navLinks.forEach(l => l.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    link.classList.add('active');
+    const panelId = link.getAttribute('data-panel');
+    document.getElementById(panelId).classList.add('active');
+
+    // Lazy-load data
+    if (panelId === 'panel-jobs') loadJobs();
+    if (panelId === 'panel-users') loadUsers();
+    if (panelId === 'panel-apps') loadApps();
+  });
+});
+
+// ============================================================
+//  OVERVIEW / STATS
+// ============================================================
+async function loadStats() {
+  try {
+    const s = await api('GET', '/stats');
+    const grid = document.getElementById('stats-grid');
+    grid.innerHTML = `
+      <div class="admin-stat-card">
+        <span class="stat-icon">💼</span>
+        <span class="stat-val" style="color:var(--admin-blue)">${s.totalJobs}</span>
+        <span class="stat-lbl">Total Jobs</span>
+      </div>
+      <div class="admin-stat-card">
+        <span class="stat-icon">👥</span>
+        <span class="stat-val" style="color:var(--admin-purple)">${s.totalUsers}</span>
+        <span class="stat-lbl">Total Users</span>
+      </div>
+      <div class="admin-stat-card">
+        <span class="stat-icon">📋</span>
+        <span class="stat-val" style="color:var(--admin-green)">${s.totalApps}</span>
+        <span class="stat-lbl">Applications</span>
+      </div>
+      <div class="admin-stat-card">
+        <span class="stat-icon">🏢</span>
+        <span class="stat-val" style="color:var(--admin-yellow)">${s.employers}</span>
+        <span class="stat-lbl">Employers</span>
+      </div>
+      <div class="admin-stat-card">
+        <span class="stat-icon">🎓</span>
+        <span class="stat-val" style="color:var(--admin-accent)">${s.candidates}</span>
+        <span class="stat-lbl">Candidates</span>
+      </div>
+      <div class="admin-stat-card">
+        <span class="stat-icon">✨</span>
+        <span class="stat-val" style="color:var(--admin-blue)">${s.jobsToday}</span>
+        <span class="stat-lbl">Posted Today</span>
+      </div>
+      <div class="admin-stat-card" style="grid-column: 1 / -1;">
+        <div style="display:flex; align-items:center; gap: 1rem; flex-wrap:wrap;">
+          <span class="stat-icon">🎯</span>
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span class="stat-lbl" style="font-size:0.85rem;">Hiring Success Rate</span>
+              <span class="stat-val" style="color:var(--admin-green); font-size:1.6rem;">${s.hiringRate}%</span>
+            </div>
+            <div class="hire-rate-track" style="height:12px;">
+              <div class="hire-rate-fill" id="overview-hire-fill"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:4px;">
+              <span style="font-size:0.75rem; color:var(--text-dim);">0%</span>
+              <span style="font-size:0.75rem; color:var(--text-dim);">${s.hiredCount} selected out of ${s.totalApps} total applicants</span>
+              <span style="font-size:0.75rem; color:var(--text-dim);">100%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    // Animate the bar after a frame
+    setTimeout(() => {
+      const fill = document.getElementById('overview-hire-fill');
+      if (fill) fill.style.width = s.hiringRate + '%';
+    }, 100);
+  } catch (err) {
+    document.getElementById('stats-grid').innerHTML = `<p style="color:var(--admin-accent)">${err.message}</p>`;
+  }
+}
+
+async function loadRecentJobs() {
+  try {
+    const jobs = await api('GET', '/jobs');
+    const tbody = document.getElementById('recent-jobs-tbody');
+    const recent = jobs.slice(0, 8);
+    if (recent.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><span>📭</span>No jobs yet</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = recent.map(j => `
+      <tr>
+        <td><strong>${j.title}</strong></td>
+        <td>${j.company_name}</td>
+        <td>${j.poster_email || '-'}</td>
+        <td>${j.category || '-'}</td>
+        <td><span class="pill pill-live">${j.applicants_count || 0}</span></td>
+      </tr>
+    `).join('');
+  } catch(err) {
+    document.getElementById('recent-jobs-tbody').innerHTML =
+      `<tr><td colspan="5" style="color:var(--admin-accent)">Error: ${err.message}</td></tr>`;
+  }
+}
+
+document.getElementById('refresh-stats-btn').addEventListener('click', () => {
+  loadStats();
+  loadRecentJobs();
+  toast('Dashboard refreshed!');
+});
+
+// ============================================================
+//  JOBS MANAGEMENT
+// ============================================================
+let allJobs = [];
+
+async function loadJobs() {
+  const tbody = document.getElementById('jobs-tbody');
+  tbody.innerHTML = `<tr><td colspan="10"><div class="loading-spinner"><div class="spin"></div></div></td></tr>`;
+  try {
+    allJobs = await api('GET', '/jobs');
+    renderJobs(allJobs);
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="10" style="color:var(--admin-accent)">Error: ${err.message}</td></tr>`;
+  }
+}
+
+function hireChip(rate) {
+  rate = (rate == null || isNaN(rate)) ? 0 : Number(rate);
+  const cls   = rate >= 50 ? 'high' : rate > 0 ? 'mid' : 'low';
+  const label = rate > 0 ? rate + '%' : '—';
+  return `<span class="hire-chip ${cls}">🎯 ${label}</span>`;
+}
+
+function renderJobs(jobs) {
+  const tbody = document.getElementById('jobs-tbody');
+  if (jobs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><span>📭</span>No jobs found</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = jobs.map((j, i) => `
+    <tr data-job-id="${j.id}">
+      <td class="tbl-def">#${j.id}</td>
+      <td><strong>${j.title}</strong></td>
+      <td>${j.company_name}</td>
+      <td><span class="pill pill-live">${j.category || '—'}</span></td>
+      <td>${j.pay_rate || '—'}</td>
+      <td>${j.applicants_count || 0}</td>
+      <td>${hireChip(j.hiring_rate)}</td>
+      <td style="font-size:0.8rem; color:var(--text-dim)">${j.poster_email || '—'}</td>
+      <td style="font-size:0.8rem; color:var(--text-dim)">${new Date(j.created_at).toLocaleDateString()}</td>
+      <td>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="tbl-btn edit" onclick="openEditJob(${j.id})">Edit</button>
+          <button class="tbl-btn delete" onclick="deleteJob(${j.id}, '${j.title.replace(/'/g, "\\'")}')" >Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Search jobs
+document.getElementById('jobs-search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  const filtered = allJobs.filter(j =>
+    j.title.toLowerCase().includes(q) ||
+    j.company_name.toLowerCase().includes(q) ||
+    (j.category || '').toLowerCase().includes(q) ||
+    (j.poster_email || '').toLowerCase().includes(q)
+  );
+  renderJobs(filtered);
+});
+
+// ---- EDIT JOB ----
+async function openEditJob(id) {
+  try {
+    const job = await api('GET', `/jobs/${id}`);
+    document.getElementById('edit-job-id').value       = job.id;
+    document.getElementById('edit-job-title').value    = job.title || '';
+    document.getElementById('edit-job-desc').value     = job.description || '';
+    document.getElementById('edit-job-company').value  = job.company_name || '';
+    document.getElementById('edit-job-location').value = job.location || '';
+    document.getElementById('edit-job-pay').value      = job.pay_rate || '';
+    const typeEl = document.getElementById('edit-job-type');
+    const catEl  = document.getElementById('edit-job-category');
+    if (job.type)     typeEl.value = job.type;
+    if (job.category) catEl.value  = job.category;
+    document.getElementById('edit-job-modal').classList.add('active');
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+document.getElementById('edit-job-cancel').addEventListener('click', () => {
+  document.getElementById('edit-job-modal').classList.remove('active');
+});
+document.getElementById('edit-job-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('active');
+});
+
+document.getElementById('edit-job-save').addEventListener('click', async () => {
+  const id          = document.getElementById('edit-job-id').value;
+  const title       = document.getElementById('edit-job-title').value.trim();
+  const description = document.getElementById('edit-job-desc').value.trim();
+  const companyName = document.getElementById('edit-job-company').value.trim();
+  const location    = document.getElementById('edit-job-location').value.trim();
+  const type        = document.getElementById('edit-job-type').value;
+  const category    = document.getElementById('edit-job-category').value;
+  const payRate     = document.getElementById('edit-job-pay').value.trim();
+
+  if (!title || !description || !companyName) {
+    toast('Title, description, and company are required.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('edit-job-save');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await api('PUT', `/jobs/${id}`, { title, description, companyName, location, type, category, payRate });
+    toast('✅ Job updated successfully!');
+    document.getElementById('edit-job-modal').classList.remove('active');
+    await loadJobs();
+    // Update recent jobs on overview if visible
+    loadRecentJobs();
+  } catch(err) { toast(err.message, 'error'); }
+  btn.disabled = false; btn.textContent = '💾 Save Changes';
+});
+
+// ---- DELETE JOB ----
+let pendingDeleteCb = null;
+
+function showConfirm(title, msg, cb) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  pendingDeleteCb = cb;
+  document.getElementById('confirm-overlay').classList.add('active');
+}
+
+document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
+  document.getElementById('confirm-overlay').classList.remove('active');
+  pendingDeleteCb = null;
+});
+document.getElementById('confirm-ok-btn').addEventListener('click', async () => {
+  document.getElementById('confirm-overlay').classList.remove('active');
+  if (pendingDeleteCb) { await pendingDeleteCb(); pendingDeleteCb = null; }
+});
+
+function deleteJob(id, title) {
+  showConfirm(
+    `Delete "${title}"?`,
+    'This will permanently remove the job listing and all its applications.',
+    async () => {
+      try {
+        await api('DELETE', `/jobs/${id}`);
+        toast('🗑️ Job deleted successfully!');
+        await loadJobs();
+        loadRecentJobs();
+        loadStats();
+      } catch(err) { toast(err.message, 'error'); }
+    }
+  );
+}
+
+// ============================================================
+//  USERS MANAGEMENT
+// ============================================================
+let allUsers = [];
+
+async function loadUsers() {
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = `<tr><td colspan="6"><div class="loading-spinner"><div class="spin"></div></div></td></tr>`;
+  try {
+    allUsers = await api('GET', '/users');
+    renderUsers(allUsers);
+  } catch(err) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--admin-accent)">Error: ${err.message}</td></tr>`;
+  }
+}
+
+function renderUsers(users) {
+  const tbody = document.getElementById('users-tbody');
+  if (users.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><span>👤</span>No users found</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = users.map((u, i) => `
+    <tr>
+      <td class="tbl-def">#${u.id}</td>
+      <td><strong>${u.first_name || ''} ${u.last_name || ''}</strong></td>
+      <td style="font-size:0.85rem;">${u.email}</td>
+      <td><span class="pill pill-${u.role}">${u.role}</span></td>
+      <td style="font-size:0.8rem; color:var(--text-dim)">${new Date(u.created_at).toLocaleDateString()}</td>
+      <td>
+        ${u.role !== 'admin'
+          ? `<button class="tbl-btn delete" onclick="deleteUser(${u.id}, '${u.email.replace(/'/g, "\\'")}')">Delete</button>`
+          : `<span class="tbl-def">Protected</span>`}
+      </td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('users-search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  renderUsers(allUsers.filter(u =>
+    u.email.toLowerCase().includes(q) ||
+    (u.first_name || '').toLowerCase().includes(q) ||
+    (u.last_name || '').toLowerCase().includes(q) ||
+    u.role.toLowerCase().includes(q)
+  ));
+});
+
+function deleteUser(id, email) {
+  showConfirm(
+    `Delete user "${email}"?`,
+    'This will permanently delete the user and all associated data.',
+    async () => {
+      try {
+        await api('DELETE', `/users/${id}`);
+        toast('🗑️ User deleted!');
+        await loadUsers();
+        loadStats();
+      } catch(err) { toast(err.message, 'error'); }
+    }
+  );
+}
+
+// ============================================================
+//  APPLICATIONS OVERVIEW
+// ============================================================
+let allApps = [];
+
+async function loadApps() {
+  const tbody = document.getElementById('apps-tbody');
+  tbody.innerHTML = `<tr><td colspan="6"><div class="loading-spinner"><div class="spin"></div></div></td></tr>`;
+  try {
+    allApps = await api('GET', '/applications');
+    renderApps(allApps);
+    updateAppsHiringBar(allApps);
+  } catch(err) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--admin-accent)">Error: ${err.message}</td></tr>`;
+  }
+}
+
+function updateAppsHiringBar(apps) {
+  const total    = apps.length;
+  const hired    = apps.filter(a => a.status === 'selected').length;
+  const rate     = total > 0 ? Math.round((hired / total) * 100) : 0;
+  const pctEl    = document.getElementById('apps-hire-pct');
+  const subEl    = document.getElementById('apps-hire-sub');
+  const fillEl   = document.getElementById('apps-hire-fill');
+  if (pctEl)  pctEl.textContent  = rate + '%';
+  if (subEl)  subEl.textContent  = `${hired} hired out of ${total} applicants`;
+  if (fillEl) setTimeout(() => { fillEl.style.width = rate + '%'; }, 100);
+}
+
+function renderApps(apps) {
+  const tbody = document.getElementById('apps-tbody');
+  if (apps.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><span>📋</span>No applications found</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = apps.map((a, i) => `
+    <tr>
+      <td class="tbl-def">#${a.id}</td>
+      <td><strong>${a.first_name || ''} ${a.last_name || ''}</strong><br>
+        <small style="color:var(--text-dim)">${a.candidate_email}</small></td>
+      <td>${a.job_title}</td>
+      <td>${a.company_name}</td>
+      <td><span class="pill pill-${a.status || 'applied'}">${a.status || 'applied'}</span></td>
+      <td style="font-size:0.8rem; color:var(--text-dim)">${new Date(a.applied_at).toLocaleDateString()}</td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('apps-search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  renderApps(allApps.filter(a =>
+    a.job_title.toLowerCase().includes(q) ||
+    a.candidate_email.toLowerCase().includes(q) ||
+    a.company_name.toLowerCase().includes(q) ||
+    (a.first_name || '').toLowerCase().includes(q)
+  ));
+});
+
+// ============================================================
+//  INITIAL LOAD
+// ============================================================
+loadStats();
+loadRecentJobs();
+</script>
+</body>
+</html>
